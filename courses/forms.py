@@ -15,7 +15,16 @@ class QuizForm(forms.ModelForm):
             'total_questions',
         ]
 
-class TrueFalseQuestionForm(forms.ModelForm):
+class QuestionForm(forms.ModelForm):
+    class Media:
+        # css is a dictionary
+        css ={'all': ('courses/css/order.css',)}  # ',' because this is a tuple
+        js = (
+            'courses/js/vendor/jquery.fn.sortable.min.js',
+            'courses/js/order.js'
+        )
+
+class TrueFalseQuestionForm(QuestionForm):
     class Meta:
         model = models.TrueFalseQuestion
         fields = [
@@ -24,7 +33,7 @@ class TrueFalseQuestionForm(forms.ModelForm):
         ]
 
 
-class MultipleChoiceQuestionForm(forms.ModelForm):
+class MultipleChoiceQuestionForm(QuestionForm):
     class Meta:
         model = models.MultipleChoiceQuestion
         fields = [
@@ -41,3 +50,19 @@ class AnswerForm(forms.ModelForm):
             'text',
             'correct',
         ]
+
+AnswerFormSet = forms.modelformset_factory(
+    models.Answer,
+    form=AnswerForm,
+    extra=2,
+
+)
+
+AnswerInlineFormSet = forms.inlineformset_factory(
+    models.Question,  # model that we will be saving with/parent model
+    models.Answer,  # model being edited in form/ which model the factory is for
+    formset=AnswerFormSet,
+    fields=('order', 'text', 'correct'),
+    extra=2,
+    min_num=1,
+)
